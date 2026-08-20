@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0057ff">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.png">
+  <title>macOS Maskable PWA Test</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { max-width: 720px; margin: 4rem auto; padding: 0 1.5rem; line-height: 1.5; }
+    header { display: flex; align-items: center; gap: 1.25rem; }
+    img { width: 96px; height: 96px; border: 1px solid #888; }
+    code { background: color-mix(in srgb, CanvasText 10%, Canvas); padding: .15rem .35rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="icon.png" alt="Full-bleed blue source icon">
+    <div>
+      <h1>macOS Maskable PWA Test</h1>
+      <p>Full-bleed <code>purpose: maskable</code> icon for Chromium issue 423939352.</p>
+    </div>
+  </header>
+  <h2>Test</h2>
+  <ol>
+    <li>Install this page as an app in Chrome or Chromium.</li>
+    <li>Check the generated app in <code>~/Applications/Chrome Apps.localized/</code>.</li>
+    <li>On macOS 26, Finder and Dock should show the system-processed shape without double masking or extra padding.</li>
+    <li>Open <code>Contents/Resources/app.icns</code> in Preview. It should contain this original full-bleed blue square.</li>
+  </ol>
+  <p id="status">Checking service worker...</p>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js').then(() => {
+        document.querySelector('#status').textContent = 'Service worker registered. App is ready to install.';
+      }).catch((error) => {
+        document.querySelector('#status').textContent = `Service worker error: ${error}`;
+      });
+    }
+  </script>
+</body>
+</html>
