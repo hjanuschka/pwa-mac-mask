@@ -1,94 +1,183 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0057ff">
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icon.png">
-  <title>macOS Maskable PWA Test</title>
-  <style>
-    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
-    body { max-width: 720px; margin: 4rem auto; padding: 0 1.5rem; line-height: 1.5; }
-    header { display: flex; align-items: center; gap: 1.25rem; }
-    img { width: 96px; height: 96px; border: 1px solid #888; }
-    code { background: color-mix(in srgb, CanvasText 10%, Canvas); padding: .15rem .35rem; border-radius: 4px; }
-    button { font: inherit; font-weight: 600; padding: .7rem 1rem; border-radius: 8px; border: 0; background: #0057ff; color: white; cursor: pointer; }
-    button:disabled { cursor: wait; opacity: .55; }
-    .expected { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
-    figure { margin: 0; }
-    figure img { box-sizing: border-box; width: 100%; height: auto; image-rendering: auto; background: repeating-conic-gradient(#ddd 0 25%, #fff 0 50%) 50% / 24px 24px; }
-    figcaption { margin-top: .5rem; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#121212">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.png">
+<title>Issue 423939352 - macOS maskable PWA icon test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #121212;
+    --bg-light: #1e1e1e;
+    --bg-lighter: #333;
+    --text: #bebebe;
+    --text-dim: #8a8a8d;
+    --accent: #FFC107;
+    --border: #333;
+    --red: #D35F5F;
+    --green: #6abf69;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  header { border-bottom: 2px solid var(--border); padding: 48px 0 32px; }
+  .header-row { display: flex; align-items: center; gap: 20px; }
+  .source-icon { width: 80px; height: 80px; border: 1px solid var(--border); }
+  header h1 { font-size: 20px; color: var(--accent); font-weight: 700; margin-bottom: 8px; }
+  header .meta { font-size: 12px; color: var(--text-dim); display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  h2 { font-size: 14px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .box { border: 1px solid var(--border); border-radius: 6px; background: var(--bg-light); padding: 16px 20px; margin-bottom: 16px; }
+  .box h3 { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+  .box p { font-size: 13px; color: var(--text-dim); margin-bottom: 8px; }
+  code { font-family: inherit; font-size: 12px; background: var(--bg-lighter); padding: 1px 5px; border-radius: 3px; }
+  .btn { display: inline-block; font-family: inherit; font-size: 13px; font-weight: 700; padding: 10px 20px; border-radius: 6px; text-decoration: none; border: 1px solid var(--border); background: var(--bg-light); color: var(--accent); cursor: pointer; transition: background .15s; }
+  .btn:hover { background: var(--bg-lighter); text-decoration: none; }
+  .btn:disabled { cursor: wait; color: var(--text-dim); opacity: .7; }
+  .install-row { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin: 16px 0; }
+  #status { color: var(--text-dim); font-size: 12px; }
+  ol { padding-left: 22px; }
+  li { margin-bottom: 8px; }
+  .comparison { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  figure { margin: 0; }
+  figure img { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: 6px; background: repeating-conic-gradient(#333 0 25%, #222 0 50%) 50% / 24px 24px; }
+  figcaption { color: var(--text-dim); font-size: 12px; margin-top: 10px; }
+  .tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; margin-bottom: 8px; }
+  .tag.green { background: rgba(106,191,105,.15); color: var(--green); }
+  .tag.amber { background: rgba(255,193,7,.15); color: var(--accent); }
+</style>
+<link rel="stylesheet" href="https://static.januschka.com/refresh.css">
 </head>
 <body>
-  <header>
-    <img src="icon.png" alt="Full-bleed blue source icon">
+<nav class="ru-site-nav">
+  <a class="ru-nav-home" href="https://static.januschka.com/">&#8592; All samplers</a>
+  <span class="ru-nav-sep">|</span>
+  <span class="ru-nav-id"><a href="https://issues.chromium.org/issues/423939352">#423939352</a></span>
+  <span class="ru-nav-sep">|</span>
+  <span class="ru-nav-title">macOS maskable PWA icon test</span>
+</nav>
+
+<div class="wrap">
+<header>
+  <div class="header-row">
+    <img class="source-icon" src="icon.png" alt="Full-bleed blue source icon">
     <div>
-      <h1>macOS Maskable PWA Test</h1>
-      <p>Full-bleed <code>purpose: maskable</code> icon for Chromium issue 423939352.</p>
+      <h1>macOS maskable PWA icon test</h1>
+      <div class="meta">
+        <span><a href="https://issues.chromium.org/issues/423939352">#423939352</a></span>
+        <span><a href="https://chromium-review.googlesource.com/c/chromium/src/+/8175547">CL 8175547</a></span>
+        <span>Full-bleed purpose: maskable icon</span>
+      </div>
     </div>
-  </header>
-  <p><button id="install" type="button" disabled>Preparing install...</button></p>
-  <p id="status">Checking installability...</p>
-  <h2>Test</h2>
-  <ol>
-    <li>Install this page as an app in Chrome or Chromium.</li>
-    <li>Check the generated app in <code>~/Applications/Chrome Apps.localized/</code>.</li>
-    <li>On macOS 26, Finder and Dock should show the system-processed shape without double masking or extra padding.</li>
-    <li>Open <code>Contents/Resources/app.icns</code> in Preview. It should contain this original full-bleed blue square.</li>
-  </ol>
-  <h2>Expected <code>app.icns</code> contents</h2>
-  <div class="expected">
-    <figure>
-      <img src="expected/app-icns-macos-25-and-earlier.png" alt="Chrome-masked icon expected on macOS 25 and earlier">
-      <figcaption><strong>macOS 25 and earlier:</strong> Chrome-masked icon with transparent corners. Captured using Canary 154 on macOS 15.6.</figcaption>
-    </figure>
-    <figure>
-      <img src="expected/app-icns-macos-26.png" alt="Full-bleed unmasked icon expected inside app.icns on macOS 26">
-      <figcaption><strong>macOS 26:</strong> original full-bleed icon. Finder and Dock should apply the native system shape when displaying it.</figcaption>
-    </figure>
   </div>
-  <p>These images describe the contents of <code>app.icns</code>, not a screenshot of Finder's system-rendered icon.</p>
-  <script>
-    const installButton = document.querySelector('#install');
-    const status = document.querySelector('#status');
-    let installPrompt;
+</header>
 
-    window.addEventListener('beforeinstallprompt', (event) => {
-      event.preventDefault();
-      installPrompt = event;
-      installButton.disabled = false;
-      installButton.textContent = 'Install test PWA';
-      status.textContent = 'Installable PWA detected.';
-    });
+<h2>Install</h2>
+<div class="box">
+  <span class="tag amber">PWA reproducer</span>
+  <h3>Install the test application</h3>
+  <p>The manifest supplies a solid full-bleed blue icon with <code>purpose: maskable</code>. Masking, padding, borders, and transparent corners are easy to identify.</p>
+  <div class="install-row">
+    <button class="btn" id="install" type="button" disabled>Preparing install...</button>
+    <span id="status">Checking installability...</span>
+  </div>
+</div>
 
-    installButton.addEventListener('click', async () => {
-      if (!installPrompt) {
-        return;
-      }
-      await installPrompt.prompt();
-      const choice = await installPrompt.userChoice;
-      status.textContent = `Install prompt result: ${choice.outcome}.`;
-      installPrompt = undefined;
-      installButton.disabled = true;
-    });
+<h2>Verification</h2>
+<div class="box">
+  <h3>macOS 26 and later</h3>
+  <ol>
+    <li>Install this page in Chrome or Chromium.</li>
+    <li>Locate the app under <code>~/Applications/Chrome Apps.localized/</code> or the channel-specific apps folder.</li>
+    <li>Verify Finder, Dock, and Launchpad show the normal macOS 26 system shape without double masking, excessive padding, or an extra border.</li>
+    <li>Open <code>Contents/Resources/app.icns</code> in Preview and verify it contains the original full-bleed blue square.</li>
+    <li>Launch the installed app and verify it opens normally.</li>
+  </ol>
+</div>
+<div class="box">
+  <h3>macOS 25 and earlier</h3>
+  <p>Verify Chrome still writes its existing masked icon into <code>app.icns</code>.</p>
+</div>
 
-    window.addEventListener('appinstalled', () => {
-      installButton.textContent = 'Installed';
-      installButton.disabled = true;
-      status.textContent = 'PWA installed.';
-    });
+<h2>Expected app.icns contents</h2>
+<div class="comparison">
+  <figure class="box">
+    <span class="tag amber">macOS 25 and earlier</span>
+    <img src="expected/app-icns-macos-25-and-earlier.png" alt="Chrome-masked icon expected on macOS 25 and earlier">
+    <figcaption>Chrome-masked icon with transparent corners. Captured with Canary 154 on macOS 15.6.</figcaption>
+  </figure>
+  <figure class="box">
+    <span class="tag green">macOS 26 and later</span>
+    <img src="expected/app-icns-macos-26.png" alt="Full-bleed unmasked icon expected inside app.icns on macOS 26">
+    <figcaption>Original full-bleed icon. Finder and Dock apply the native system shape when displaying it.</figcaption>
+  </figure>
+</div>
+<div class="box">
+  <p>These references describe the PNG representation stored in <code>app.icns</code>, not Finder's system-rendered appearance. An actual macOS 26 Finder/Dock capture will be added when available.</p>
+</div>
+</div>
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service-worker.js').then(() => {
-        if (!installPrompt) {
-          status.textContent = 'Service worker registered. Reload once if the install button remains disabled.';
-        }
-      }).catch((error) => {
-        status.textContent = `Service worker error: ${error}`;
-      });
+<footer class="ru-site-footer">
+  <span>&copy; 2025 Helmut Januschka</span>
+  <span class="sep">&middot;</span>
+  <a href="https://static.januschka.com/">All samplers</a>
+  <span class="sep">&middot;</span>
+  <a href="https://www.januschka.com">Blog</a>
+  <span class="sep">&middot;</span>
+  <a href="http://www.rununtil.com/impressum.html">Imprint</a>
+</footer>
+
+<script>
+  const installButton = document.querySelector('#install');
+  const status = document.querySelector('#status');
+  let installPrompt;
+
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    installPrompt = event;
+    installButton.disabled = false;
+    installButton.textContent = 'Install test PWA';
+    status.textContent = 'Installable PWA detected.';
+  });
+
+  installButton.addEventListener('click', async () => {
+    if (!installPrompt) {
+      return;
     }
-  </script>
+    await installPrompt.prompt();
+    const choice = await installPrompt.userChoice;
+    status.textContent = `Install prompt result: ${choice.outcome}.`;
+    installPrompt = undefined;
+    installButton.disabled = true;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    installButton.textContent = 'Installed';
+    installButton.disabled = true;
+    status.textContent = 'PWA installed.';
+  });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js').then(() => {
+      if (!installPrompt) {
+        status.textContent = 'Service worker registered. Reload once if the install button remains disabled.';
+      }
+    }).catch((error) => {
+      status.textContent = `Service worker error: ${error}`;
+    });
+  }
+</script>
 </body>
 </html>
