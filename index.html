@@ -13,6 +13,8 @@
     header { display: flex; align-items: center; gap: 1.25rem; }
     img { width: 96px; height: 96px; border: 1px solid #888; }
     code { background: color-mix(in srgb, CanvasText 10%, Canvas); padding: .15rem .35rem; border-radius: 4px; }
+    button { font: inherit; font-weight: 600; padding: .7rem 1rem; border-radius: 8px; border: 0; background: #0057ff; color: white; cursor: pointer; }
+    button:disabled { cursor: wait; opacity: .55; }
   </style>
 </head>
 <body>
@@ -23,6 +25,8 @@
       <p>Full-bleed <code>purpose: maskable</code> icon for Chromium issue 423939352.</p>
     </div>
   </header>
+  <p><button id="install" type="button" disabled>Preparing install...</button></p>
+  <p id="status">Checking installability...</p>
   <h2>Test</h2>
   <ol>
     <li>Install this page as an app in Chrome or Chromium.</li>
@@ -30,13 +34,43 @@
     <li>On macOS 26, Finder and Dock should show the system-processed shape without double masking or extra padding.</li>
     <li>Open <code>Contents/Resources/app.icns</code> in Preview. It should contain this original full-bleed blue square.</li>
   </ol>
-  <p id="status">Checking service worker...</p>
   <script>
+    const installButton = document.querySelector('#install');
+    const status = document.querySelector('#status');
+    let installPrompt;
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      installPrompt = event;
+      installButton.disabled = false;
+      installButton.textContent = 'Install test PWA';
+      status.textContent = 'Installable PWA detected.';
+    });
+
+    installButton.addEventListener('click', async () => {
+      if (!installPrompt) {
+        return;
+      }
+      await installPrompt.prompt();
+      const choice = await installPrompt.userChoice;
+      status.textContent = `Install prompt result: ${choice.outcome}.`;
+      installPrompt = undefined;
+      installButton.disabled = true;
+    });
+
+    window.addEventListener('appinstalled', () => {
+      installButton.textContent = 'Installed';
+      installButton.disabled = true;
+      status.textContent = 'PWA installed.';
+    });
+
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./service-worker.js').then(() => {
-        document.querySelector('#status').textContent = 'Service worker registered. App is ready to install.';
+        if (!installPrompt) {
+          status.textContent = 'Service worker registered. Reload once if the install button remains disabled.';
+        }
       }).catch((error) => {
-        document.querySelector('#status').textContent = `Service worker error: ${error}`;
+        status.textContent = `Service worker error: ${error}`;
       });
     }
   </script>
