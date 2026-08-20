@@ -1,4 +1,4 @@
-const CACHE = 'pwa-mac-mask-v4';
+const CACHE = 'pwa-mac-mask-v5';
 const ASSETS = [
   './',
   './index.html',
