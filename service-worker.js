@@ -1,5 +1,13 @@
-const CACHE = 'pwa-mac-mask-v2';
-const ASSETS = ['./', './index.html', './manifest.json', './icon.png', './icon-512.png'];
+const CACHE = 'pwa-mac-mask-v3';
+const ASSETS = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icon.png',
+  './icon-512.png',
+  './expected/app-icns-macos-25-and-earlier.png',
+  './expected/app-icns-macos-26.png',
+];
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

@@ -15,6 +15,10 @@
     code { background: color-mix(in srgb, CanvasText 10%, Canvas); padding: .15rem .35rem; border-radius: 4px; }
     button { font: inherit; font-weight: 600; padding: .7rem 1rem; border-radius: 8px; border: 0; background: #0057ff; color: white; cursor: pointer; }
     button:disabled { cursor: wait; opacity: .55; }
+    .expected { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    figure { margin: 0; }
+    figure img { box-sizing: border-box; width: 100%; height: auto; image-rendering: auto; background: repeating-conic-gradient(#ddd 0 25%, #fff 0 50%) 50% / 24px 24px; }
+    figcaption { margin-top: .5rem; }
   </style>
 </head>
 <body>
@@ -34,6 +38,18 @@
     <li>On macOS 26, Finder and Dock should show the system-processed shape without double masking or extra padding.</li>
     <li>Open <code>Contents/Resources/app.icns</code> in Preview. It should contain this original full-bleed blue square.</li>
   </ol>
+  <h2>Expected <code>app.icns</code> contents</h2>
+  <div class="expected">
+    <figure>
+      <img src="expected/app-icns-macos-25-and-earlier.png" alt="Chrome-masked icon expected on macOS 25 and earlier">
+      <figcaption><strong>macOS 25 and earlier:</strong> Chrome-masked icon with transparent corners. Captured using Canary 154 on macOS 15.6.</figcaption>
+    </figure>
+    <figure>
+      <img src="expected/app-icns-macos-26.png" alt="Full-bleed unmasked icon expected inside app.icns on macOS 26">
+      <figcaption><strong>macOS 26:</strong> original full-bleed icon. Finder and Dock should apply the native system shape when displaying it.</figcaption>
+    </figure>
+  </div>
+  <p>These images describe the contents of <code>app.icns</code>, not a screenshot of Finder's system-rendered icon.</p>
   <script>
     const installButton = document.querySelector('#install');
     const status = document.querySelector('#status');
